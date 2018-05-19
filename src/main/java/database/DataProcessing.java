@@ -1,10 +1,13 @@
 package database;
 
 import data_processing.Utils;
+import org.apache.commons.dbutils.DbUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class DataProcessing {
 
@@ -43,8 +46,10 @@ public class DataProcessing {
         }
     }
 
+
     /**
      * Проверка наличия пользователя в БД.
+     *
      * @return true - если запись с подобным USER_ID (VK) уже есть, false - если записи нет.
      * @throws SQLException
      */
@@ -63,6 +68,39 @@ public class DataProcessing {
         rs.close();
         st.close();
         return result;
+
+    }
+
+    /**
+     * Получение списка с USER_ID по жестко заданным условиям.
+     * @return
+     */
+    public static List<String> getUserIdList(Connection con) {
+        List<String> ids = new ArrayList<>();
+        PreparedStatement st = null;
+        ResultSet rs = null;
+        String sql = "SELECT user_id FROM handshake_theory.primary_users" +
+                " WHERE followers_count IS NOT NULL " +
+                "AND scan_date IS NOT NULL AND " +
+                "location = 'Красная площадь' LIMIT 999;";
+        try {
+            st = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
+            st.execute();
+            rs = st.getResultSet();
+
+            if (rs.first()) {
+                do {
+                    ids.add(rs.getString("user_id"));
+                } while (rs.next());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbUtils.closeQuietly(st);
+            DbUtils.closeQuietly(rs);
+            DbUtils.closeQuietly(con);
+        }
+        return ids;
 
     }
 }

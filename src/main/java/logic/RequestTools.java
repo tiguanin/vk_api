@@ -7,7 +7,9 @@ import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.users.responses.GetNearbyResponse;
+import com.vk.api.sdk.queries.users.UserField;
 import com.vk.api.sdk.queries.users.UsersGetNearbyRadius;
+import com.vk.api.sdk.queries.users.UsersGetQuery;
 import constants.AppInformation;
 import objects.Place;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -129,6 +131,21 @@ public class RequestTools {
 
         System.out.println("Произошли исключения на стадии парсинга json-a, возвращаю NULL!");
         return result;
+    }
+
+
+    public static void getUserInfo(List<String> ids) {
+      TransportClient transportClient = HttpTransportClient.getInstance();
+      VkApiClient vk = new VkApiClient(transportClient);
+      UserActor userActor = new UserActor(AppInformation.APP_ID, AppInformation.TOKEN);
+
+      try {
+          UsersGetQuery usersGetQuery = new UsersGetQuery(vk, userActor);
+          System.out.println(usersGetQuery.fields(UserField.ONLINE).userIds(ids).execute());
+      } catch (ApiException | ClientException e) {
+          e.printStackTrace();
+      }
+
     }
 }
 

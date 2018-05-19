@@ -2,10 +2,8 @@ package logic;
 
 import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
-import constants.AppInformation;
+import database.DataProcessing;
 import objects.Place;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
@@ -13,8 +11,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 import static database.DBTools.configureDBConnection;
-import static database.DataProcessing.insertPrimaryUsers;
-import static logic.RequestTools.executeCustomNearbyRequest;
 
 public class StartupApp {
 
@@ -28,18 +24,21 @@ public class StartupApp {
         Place spb = new Place("Санкт-Петербург", 59.929216F, 30.318146F);
 
         try {
-            JSONObject obj = executeCustomNearbyRequest(AppInformation.TOKEN, temirgoevskaya, 4);
-            System.out.println(obj.toString());
+//            JSONObject obj = executeCustomNearbyRequest(AppInformation.TOKEN, spb, 4);
+//            System.out.println(obj.toString());
+//
+//            JSONArray array = (JSONArray) obj.get("items");
+//            for (int i = 0; i < array.size(); i++) {
+//                JSONObject params = (JSONObject) array.get(i);
+//                insertPrimaryUsers(params, con);
+//            }
 
-            JSONArray array = (JSONArray) obj.get("items");
-            for (int i = 0; i < array.size(); i++) {
-                JSONObject params = (JSONObject) array.get(i);
-                insertPrimaryUsers(params, con);
-            }
-
+            DataProcessing.getUserIdList(con);
             con.close();
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
     }
 }
