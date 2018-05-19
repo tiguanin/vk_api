@@ -11,8 +11,6 @@ import org.json.simple.parser.ParseException;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 import static database.DBTools.configureDBConnection;
 import static database.DataProcessing.insertPrimaryUsers;
@@ -28,10 +26,9 @@ public class StartupApp {
         Place moscowKremlin = new Place("Красная площадь", 55.754868F, 37.620578F);
         Place krasnodar = new Place("г. Краснодар", 45.030014F, 38.979964F);
         Place spb = new Place("Санкт-Петербург", 59.929216F, 30.318146F);
-        List<Long> idList = new ArrayList<>();
 
         try {
-            JSONObject obj = executeCustomNearbyRequest(AppInformation.TOKEN, krasnodar, 3);
+            JSONObject obj = executeCustomNearbyRequest(AppInformation.TOKEN, temirgoevskaya, 4);
             System.out.println(obj.toString());
 
             JSONArray array = (JSONArray) obj.get("items");
@@ -39,8 +36,6 @@ public class StartupApp {
                 JSONObject params = (JSONObject) array.get(i);
                 insertPrimaryUsers(params, con);
             }
-//            idList = parsePrimaryUsers(obj);
-//            executeCustomUserGetInfoRequest(idList);
 
             con.close();
         } catch (SQLException e) {
