@@ -31,7 +31,7 @@ public class StartupApp {
         List<Long> idList = new ArrayList<>();
 
         try {
-            JSONObject obj = executeCustomNearbyRequest(AppInformation.TOKEN, spb, 4);
+            JSONObject obj = executeCustomNearbyRequest(AppInformation.TOKEN, krasnodar, 3);
             System.out.println(obj.toString());
 
             JSONArray array = (JSONArray) obj.get("items");
