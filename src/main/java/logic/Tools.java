@@ -31,6 +31,7 @@ public class Tools {
         return url;
     }
 
+
     public static String configureUserGetInfoURL(String url) throws UnsupportedEncodingException {
         url = url + "&fields=is_friend";
         url = url + ",common_count";
@@ -46,6 +47,7 @@ public class Tools {
         return url;
     }
 
+
     /**
      * Парсинг всех ID первичных пользователей. Нужно для нахождения их друзей.
      */
@@ -60,11 +62,6 @@ public class Tools {
         return idList;
     }
 
-    public static void extractUserInfoById(List<Long> idList) {
-        for (Long id : idList) {
-
-        }
-    }
 
     /**
      * Добавление метаданных (параметры локации) для кадого пользователя.

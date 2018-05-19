@@ -31,7 +31,6 @@ public class RequestTools {
     public static void locationRequestWrapper(Place place, UsersGetNearbyRadius areaRadius) throws ParseException {
         TransportClient transportClient = HttpTransportClient.getInstance();
         VkApiClient vk = new VkApiClient(transportClient);
-
         try {
             UserActor actor = new UserActor(AppInformation.APP_ID, AppInformation.TOKEN);
             GetNearbyResponse response = vk.users()
@@ -44,7 +43,6 @@ public class RequestTools {
             JSONParser parser = new JSONParser();
             JSONObject jsonObject = (JSONObject) parser.parse(result);
             String res = (String) jsonObject.get("items");
-
             System.out.println(res);
         } catch (ApiException | ClientException e) {
             e.printStackTrace();
@@ -68,7 +66,6 @@ public class RequestTools {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         HttpGet httpGet = new HttpGet(url);
         CloseableHttpResponse response = httpClient.execute(httpGet);
-
         try {
             System.out.println(response.getStatusLine());
             String respStr = EntityUtils.toString(response.getEntity());
@@ -94,7 +91,6 @@ public class RequestTools {
             objectCollection.add(temp);
             Thread.sleep(200);
         }
-
         for (JSONObject obj : objectCollection) {
             System.out.println(obj.toString());
         }
