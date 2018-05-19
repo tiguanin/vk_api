@@ -105,7 +105,6 @@ public class RequestTools {
 
     /**
      * GET-запрос по указанному URL.
-     *
      * @param url - URL, который нужно послать серверу методом GET
      * @return JSONObject с ответом сервера
      */
