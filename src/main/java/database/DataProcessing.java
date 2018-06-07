@@ -72,17 +72,14 @@ public class DataProcessing {
     }
 
     /**
-     * Получение списка с USER_ID по жестко заданным условиям.
+     * Получение списка с PRIMARY_USERS.USER_ID по жестко заданным условиям.
      * @return
      */
     public static List<String> getUserIdList(Connection con) {
         List<String> ids = new ArrayList<>();
         PreparedStatement st = null;
         ResultSet rs = null;
-        String sql = "SELECT user_id FROM handshake_theory.primary_users" +
-                " WHERE followers_count IS NOT NULL " +
-                "AND scan_date IS NOT NULL AND " +
-                "location = 'Красная площадь' LIMIT 999;";
+        String sql = "SELECT user_id FROM handshake_theory.primary_users;";
         try {
             st = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
             st.execute();
@@ -102,5 +99,29 @@ public class DataProcessing {
         }
         return ids;
 
+    }
+
+
+    /**
+     *
+     * @param con
+     * @param primaryUserId
+     * @param friendId
+     */
+    public static void insertPrimaryUsersFriends(Connection con, int primaryUserId, int friendId) {
+        String sql = "INSERT INTO handshake_theory.primary_users_friends_list (primary_user_id, friend_user_id, scan_date) VALUES (?, ?, ?);";
+        PreparedStatement st = null;
+        try {
+            st = con.prepareStatement(sql);
+            st.setObject(1, primaryUserId);
+            st.setObject(2, friendId);
+            st.setTimestamp(3, new Timestamp(System.currentTimeMillis()));
+            st.executeUpdate();
+            st.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        } finally {
+            DbUtils.closeQuietly(st);
+        }
     }
 }

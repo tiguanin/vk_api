@@ -1,5 +1,8 @@
 package logic;
 
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import com.vk.api.sdk.client.TransportClient;
 import com.vk.api.sdk.client.VkApiClient;
 import com.vk.api.sdk.client.actors.UserActor;
@@ -7,11 +10,11 @@ import com.vk.api.sdk.exceptions.ApiException;
 import com.vk.api.sdk.exceptions.ClientException;
 import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.users.responses.GetNearbyResponse;
-import com.vk.api.sdk.queries.users.UserField;
 import com.vk.api.sdk.queries.users.UsersGetNearbyRadius;
-import com.vk.api.sdk.queries.users.UsersGetQuery;
 import constants.AppInformation;
+import database.DataProcessing;
 import objects.Place;
+import org.apache.commons.dbutils.DbUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -23,6 +26,7 @@ import org.json.simple.parser.ParseException;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +59,7 @@ public class RequestTools {
 
     /**
      * Получение данных о пользователях, находящихся рядом с заданной локацией.
+     *
      * @param token  - токен пользователя
      * @param place  - см. класс Place
      * @param radius - радиус площади поиска (по дефолту 1)
@@ -102,6 +107,7 @@ public class RequestTools {
 
     /**
      * GET-запрос по указанному URL.
+     *
      * @param url - URL, который нужно послать серверу методом GET
      * @return JSONObject с ответом сервера
      */
@@ -134,17 +140,43 @@ public class RequestTools {
     }
 
 
-    public static void getUserInfo(List<String> ids) {
-      TransportClient transportClient = HttpTransportClient.getInstance();
-      VkApiClient vk = new VkApiClient(transportClient);
-      UserActor userActor = new UserActor(AppInformation.APP_ID, AppInformation.TOKEN);
+    public static void getUserInfo(List<String> ids, Connection con) {
+        TransportClient transportClient = HttpTransportClient.getInstance();
+        VkApiClient vk = new VkApiClient(transportClient);
+        UserActor userActor = new UserActor(AppInformation.APP_ID, AppInformation.TOKEN);
+        int friendsCount = 0;
+        int responseCount = 0;
+        try {
+//          UsersGetQuery usersGetQuery = new UsersGetQuery(vk, userActor);
+//          System.out.println(usersGetQuery.fields().userIds(ids).execute());
 
-      try {
-          UsersGetQuery usersGetQuery = new UsersGetQuery(vk, userActor);
-          System.out.println(usersGetQuery.fields(UserField.ONLINE).userIds(ids).execute());
-      } catch (ApiException | ClientException e) {
-          e.printStackTrace();
-      }
+            for (String id : ids) {
+                JsonElement element = vk.execute().batch(userActor, vk.friends().get(userActor).userId(Integer.parseInt(id))).execute();
+                JsonArray arr = element.getAsJsonArray();
+                if (arr.get(0).toString().equals("false")) {
+                    System.out.println("В ответ прилетел false!");
+                    continue;
+                }
+                JsonObject obj = (JsonObject) arr.get(0);
+                arr = (JsonArray) obj.get("items");
+                for (int i = 0; i < arr.size(); i++) {
+                    DataProcessing.insertPrimaryUsersFriends(con, Integer.parseInt(id), Integer.parseInt(arr.get(i).toString()));
+                    friendsCount++;
+                }
+
+                System.out.println(responseCount + " " + element.toString());
+                responseCount++;
+                Thread.sleep(388);
+            }
+
+        } catch (ApiException | ClientException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            System.out.println("Суммарное количество друзей всех выбранных 999 пользователей: " + friendsCount);
+            DbUtils.closeQuietly(con);
+        }
 
     }
 }

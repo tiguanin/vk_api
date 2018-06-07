@@ -18,6 +18,7 @@ public class DBTools {
             ds.setUser("postgres");
             ds.setPassword("postgres");
             ds.setPortNumber(5432);
+            System.out.println("Connection is opened!");
             return ds.getConnection();
         } catch (SQLException e) {
             e.printStackTrace();
