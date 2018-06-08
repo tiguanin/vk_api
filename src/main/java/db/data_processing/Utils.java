@@ -1,4 +1,4 @@
-package data_processing;
+package db.data_processing;
 
 import org.json.simple.JSONObject;
 
@@ -9,7 +9,6 @@ public class Utils {
      */
     public static Object checkExist(String key, JSONObject params) {
         if (params.containsKey(key)) {
-            // TODO: костыль, но ничего умнее на тот момент не придумал..
             if (params.get(key) instanceof Long) {
                 Long val = (Long) params.get(key);
                 return val.intValue();

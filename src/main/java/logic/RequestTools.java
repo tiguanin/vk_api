@@ -12,7 +12,7 @@ import com.vk.api.sdk.httpclient.HttpTransportClient;
 import com.vk.api.sdk.objects.users.responses.GetNearbyResponse;
 import com.vk.api.sdk.queries.users.UsersGetNearbyRadius;
 import constants.AppInformation;
-import database.DataProcessing;
+import db.database.inserts.InsertData;
 import objects.Place;
 import org.apache.commons.dbutils.DbUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -160,7 +160,7 @@ public class RequestTools {
                 JsonObject obj = (JsonObject) arr.get(0);
                 arr = (JsonArray) obj.get("items");
                 for (int i = 0; i < arr.size(); i++) {
-                    DataProcessing.insertPrimaryUsersFriends(con, Integer.parseInt(id), Integer.parseInt(arr.get(i).toString()));
+                    InsertData.insertPrimaryUsersFriends(con, Integer.parseInt(id), Integer.parseInt(arr.get(i).toString()));
                     friendsCount++;
                 }
 

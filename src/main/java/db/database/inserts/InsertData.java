@@ -1,17 +1,22 @@
-package database;
+package db.database.inserts;
 
-import data_processing.Utils;
+import db.data_processing.Utils;
 import org.apache.commons.dbutils.DbUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 
-public class DataProcessing {
+import static db.database.checking.CheckingData.hasDuplicates;
 
-    // TODO: нужно рефакторить!
+public class InsertData {
+
+    /**
+     * Вставка записей в таблицу PRIMARY_USERS.
+     */
     public static void insertPrimaryUsers(JSONObject params, Connection con) {
         try {
             if (!hasDuplicates(params, con)) {
@@ -48,65 +53,7 @@ public class DataProcessing {
 
 
     /**
-     * Проверка наличия пользователя в БД.
-     *
-     * @return true - если запись с подобным USER_ID (VK) уже есть, false - если записи нет.
-     * @throws SQLException
-     */
-    public static boolean hasDuplicates(JSONObject params, Connection con) throws SQLException {
-        boolean result;
-        PreparedStatement st = con.prepareStatement("SELECT * FROM handshake_theory.PRIMARY_USERS WHERE USER_ID = ?");
-        st.setLong(1, (Long) params.get("id"));
-        st.execute();
-        ResultSet rs = st.getResultSet();
-
-        if (rs.next()) {
-            result = true;
-        } else {
-            result = false;
-        }
-        rs.close();
-        st.close();
-        return result;
-
-    }
-
-    /**
-     * Получение списка с PRIMARY_USERS.USER_ID по жестко заданным условиям.
-     * @return
-     */
-    public static List<String> getUserIdList(Connection con) {
-        List<String> ids = new ArrayList<>();
-        PreparedStatement st = null;
-        ResultSet rs = null;
-        String sql = "SELECT user_id FROM handshake_theory.primary_users;";
-        try {
-            st = con.prepareStatement(sql, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
-            st.execute();
-            rs = st.getResultSet();
-
-            if (rs.first()) {
-                do {
-                    ids.add(rs.getString("user_id"));
-                } while (rs.next());
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-            DbUtils.closeQuietly(st);
-            DbUtils.closeQuietly(rs);
-            DbUtils.closeQuietly(con);
-        }
-        return ids;
-
-    }
-
-
-    /**
-     *
-     * @param con
-     * @param primaryUserId
-     * @param friendId
+     * Вставка записей в таблицу PRIMARY_USERS_FRIENDS.
      */
     public static void insertPrimaryUsersFriends(Connection con, int primaryUserId, int friendId) {
         String sql = "INSERT INTO handshake_theory.primary_users_friends_list (primary_user_id, friend_user_id, scan_date) VALUES (?, ?, ?);";
@@ -124,4 +71,5 @@ public class DataProcessing {
             DbUtils.closeQuietly(st);
         }
     }
+
 }
